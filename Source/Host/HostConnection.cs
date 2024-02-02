@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Serilog;
+
 
 namespace Client;
 
@@ -7,13 +7,11 @@ public class HostConnection
 {
     public HostConnection(Uri url, string username)
     {
-        Log.Information("Creating Connection as {UserName}", username);
-        
-        HubConnection = new HubConnectionBuilder().WithUrl(url, options => options.Headers.Add("X-AuthToken", username)).Build();
+        HubConnection = new HubConnectionBuilder().WithUrl(url).Build();
         
         HubConnection.Closed += _ =>
         {
-            Log.Information("Connection Closed");
+            Console.WriteLine("Connection Closed");
             this.ConnectionClosed = true;
             return Task.CompletedTask;
         };
@@ -30,20 +28,21 @@ public class HostConnection
         {
             try
             {
-                Log.Information("Start");
+                Console.WriteLine("Start");
                 HubConnection.StartAsync().Wait();
-                Log.Information("Connected");
+                Console.WriteLine("Connected");
             }
             catch (Exception)
             {
-                Log.Error("Start SignalR Connection failed");
+                Console.WriteLine("Start SignalR Connection failed");
                 return;
             }
             while (!ConnectionClosed)
             {
                 Thread.Sleep(1);
             }
-            Log.Information("Disconnected");
+
+            Console.WriteLine("Disconnected");
         }
         finally
         {
